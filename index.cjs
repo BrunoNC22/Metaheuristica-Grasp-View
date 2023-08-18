@@ -9,5 +9,5 @@ app.get("/", function (req, res) {
 });
 
 app.listen(8080, () => {
-  console.log(`Aplicacao rodando na porta ${PORT}`);
+  console.log(`Aplicacao rodando na porta 8080`);
 });
