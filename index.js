@@ -1,6 +1,7 @@
-const express = require("express");
-const path = require("path");
-const app = express();
+import { Express } from "express";
+import path from "path";
+
+const app = Express();
 
 app.use(express.static(path.join(__dirname, "build")));
 
