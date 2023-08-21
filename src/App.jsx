@@ -1,26 +1,7 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 
-async function getText() {
-  const url =
-    "https://metaheuristica-grasp-api-production.up.railway.app/teste";
-  const options = {
-    method: "GET",
-  };
-  try {
-    const response = await fetch(url, options);
-    return response;
-  } catch (error) {
-    console.error("Error:", error);
-    throw new Error("An error occurred while making the GET request.");
-  }
-}
-
-async function createObj(text) {
-  const graph = { nome: text };
-
+async function createObj(requestObj) {
   const url =
     "https://metaheuristica-grasp-api-production.up.railway.app/teste";
   const options = {
@@ -28,8 +9,9 @@ async function createObj(text) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(graph),
+    body: JSON.stringify(requestObj),
   };
+
   try {
     const response = await fetch(url, options);
     return response;
@@ -39,75 +21,171 @@ async function createObj(text) {
   }
 }
 
-async function showText() {
-  const apiText = document.getElementById("api-text");
-  const graph = {};
-  try {
-    const resp = await getText();
-    if (resp.status === 200) {
-      graph.value = await resp.json();
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    throw new Error("An error occurred while making the GET request.");
-  }
-
-  apiText.textContent = graph.value.nome;
-}
-
-async function getObjText() {
-  const inputText = document.getElementById("input-text");
-  const text = document.getElementById("api-new-obj-response");
-  const graph = {};
-
-  try {
-    const resp = await createObj(inputText.value);
-    if (resp.status === 200) {
-      graph.value = await resp.json();
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    throw new Error("An error occurred while making the GET request.");
-  }
-
-  inputText.value = "";
-  text.textContent = graph.value.nome;
-}
-
 function App() {
-  const [count, setCount] = useState(0);
+  const [itens, setItens] = useState([{ peso: undefined, valor: undefined }]);
+
+  const [capacidade, setCapacidade] = useState(undefined);
+
+  const [isRequestSend, setIsRequestSend] = useState(false);
+
+  const [responseObj, setResponseObj] = useState([]);
+
+  const handleFormChange = (index, event) => {
+    try {
+      let data = [...itens];
+      data[index][event.target.name] = parseInt(event.target.value);
+      setItens(data);
+    } catch (e) {}
+  };
+
+  const addItens = () => {
+    let newItem = { peso: undefined, valor: undefined };
+
+    let data = [...itens];
+    data.push(newItem);
+    setItens(data);
+  };
+
+  const submitEventHandler = async (event) => {
+    event.preventDefault();
+    let data = {
+      capacidade: capacidade,
+      numeroDeItens: itens.length,
+      itens: itens,
+    };
+
+    try {
+      setIsRequestSend(true);
+      console.log(data);
+      const resp = await createObj(data);
+      if (resp.status === 200) {
+        setResponseObj(await resp.json());
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      throw new Error("An error occurred while making the POST request.");
+    }
+  };
+
+  const removeItem = (index) => {
+    let data = [...itens];
+    data.splice(index, 1);
+    setItens(data);
+  };
+
+  const calcularGanhoTotal = () => {
+    let ganho = 0;
+
+    for (let obj in responseObj) {
+      ganho += responseObj[obj].valor;
+    }
+
+    return ganho;
+  };
+
+  const calcularPesoTotal = () => {
+    let peso = 0;
+
+    for (let obj in responseObj) {
+      peso += responseObj[obj].peso;
+    }
+
+    return peso;
+  };
 
   return (
     <>
-      <div>
-        {/* 
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-        */}
-      </div>
-      <h1>Metaheuristica GRASP</h1>
-      <div className="conteudo">
-        <button onClick={showText} className="button test-response-button">
-          Texto retirado da api:
-        </button>
-        <div className="test-response">
-          <p id="api-text"></p>
+      <div className="container">
+        <h1>Metaheuristica GRASP</h1>
+        <p>O problema da mochila binária resolvido com um algoritmo GRASP</p>
+        <p>Informe os dados da mochila e as informações dos itens:</p>
+        <div className="pre-form">
+          <form action="POST" onSubmit={submitEventHandler} className="form">
+            <div className="capacidade-div">
+              Capacidade da mochila
+              <input
+                type="number"
+                name="capacidade"
+                placeholder="Capacidade da mochila"
+                value={capacidade}
+                onChange={(e) => setCapacidade(parseInt(e.target.value))}
+                className="capacidade"
+              />
+            </div>
+            <div className="input-header">
+              <div>Peso</div>
+              <div>Ganho</div>
+            </div>
+            {itens.map((item, index) => (
+              <div key={index} className="item">
+                <input
+                  type="number"
+                  placeholder="Peso"
+                  name="peso"
+                  value={item.peso}
+                  onChange={(e) => handleFormChange(index, e)}
+                ></input>
+                <input
+                  type="number"
+                  placeholder="Ganho"
+                  name="valor"
+                  value={item.valor}
+                  onChange={(e) => handleFormChange(index, e)}
+                />
+                <button
+                  type="button"
+                  name="index"
+                  onClick={() => {
+                    removeItem(index);
+                  }}
+                >
+                  Remover
+                </button>
+              </div>
+            ))}
+            <div className="form-buttons">
+              <button type="button" onClick={addItens}>
+                Adicionar item
+              </button>
+              <button type="submit">Enviar</button>
+            </div>
+          </form>
         </div>
 
-        <input
-          id="input-text"
-          className="input"
-          placeholder="Nome do objeto"
-          type="text"
-        ></input>
-        <button className="button test-response-button" onClick={getObjText}>
-          Criar objeto na api
-        </button>
-
-        <div className="obj-response">
-          <p id="api-new-obj-response"></p>
-        </div>
+        {isRequestSend ? (
+          responseObj ? (
+            <div className="response">
+              <div className="quantidade">
+                {"Quantidade de itens possiveis de serem colocados na bolsa " +
+                  responseObj.length}
+              </div>
+              <div className="itens">
+                <div className="itens-head">
+                  <p>#</p>
+                  <p>peso</p>
+                  <p>valor</p>
+                </div>
+                {responseObj.map((item, index) => (
+                  <div className="response-item" key={index}>
+                    <p>{index + 1}</p>
+                    <p>{item.peso}</p>
+                    <p>{item.valor}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="total">
+                <div className="total__">
+                  <p>Ganho total: {calcularGanhoTotal()}</p>
+                  <p>Peso total: {calcularPesoTotal()}</p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="response">Carregando...</div>
+          )
+        ) : (
+          <div className="response"></div>
+        )}
       </div>
     </>
   );
