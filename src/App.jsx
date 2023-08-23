@@ -96,7 +96,7 @@ function App() {
   return (
     <>
       <div className="container">
-        <h1>Metaheuristica GRASP</h1>
+        <h1 className="title">Metaheuristica GRASP</h1>
         <p>O problema da mochila binária resolvido com um algoritmo GRASP</p>
         <p>Informe os dados da mochila e as informações dos itens:</p>
         <div className="pre-form">
@@ -106,15 +106,16 @@ function App() {
               <input
                 type="number"
                 name="capacidade"
-                placeholder="Capacidade da mochila"
+                placeholder="Capacidade"
                 value={capacidade}
                 onChange={(e) => setCapacidade(parseInt(e.target.value))}
                 className="capacidade"
               />
             </div>
             <div className="input-header">
-              <div>Peso</div>
-              <div>Ganho</div>
+              <div className="input-header-peso">Peso</div>
+              <div className="input-header-ganho">Ganho</div>
+              <div className="mobile-input-header-remove">Remover</div>
             </div>
             {itens.map((item, index) => (
               <div key={index} className="item">
@@ -124,6 +125,7 @@ function App() {
                   name="peso"
                   value={item.peso}
                   onChange={(e) => handleFormChange(index, e)}
+                  className="item-input"
                 ></input>
                 <input
                   type="number"
@@ -131,15 +133,27 @@ function App() {
                   name="valor"
                   value={item.valor}
                   onChange={(e) => handleFormChange(index, e)}
+                  className="item-input"
                 />
                 <button
                   type="button"
                   name="index"
+                  className="desktop-remove-button"
                   onClick={() => {
                     removeItem(index);
                   }}
                 >
                   Remover
+                </button>
+                <button
+                  type="button"
+                  name="index"
+                  className="mobile-remove-button"
+                  onClick={() => {
+                    removeItem(index);
+                  }}
+                >
+                  X
                 </button>
               </div>
             ))}
@@ -155,28 +169,30 @@ function App() {
         {isRequestSend ? (
           responseObj ? (
             <div className="response">
-              <div className="quantidade">
-                {"Quantidade de itens possiveis de serem colocados na bolsa " +
-                  responseObj.length}
-              </div>
-              <div className="itens">
-                <div className="itens-head">
-                  <p>#</p>
-                  <p>peso</p>
-                  <p>valor</p>
+              <div className="response-body">
+                <div className="quantidade">
+                  {"Quantidade de itens possiveis de serem colocados na bolsa: " +
+                    responseObj.length}
                 </div>
-                {responseObj.map((item, index) => (
-                  <div className="response-item" key={index}>
-                    <p>{index + 1}</p>
-                    <p>{item.peso}</p>
-                    <p>{item.valor}</p>
+                <div className="itens">
+                  <div className="itens-head">
+                    <p>#</p>
+                    <p>peso</p>
+                    <p>valor</p>
                   </div>
-                ))}
-              </div>
-              <div className="total">
-                <div className="total__">
-                  <p>Ganho total: {calcularGanhoTotal()}</p>
-                  <p>Peso total: {calcularPesoTotal()}</p>
+                  {responseObj.map((item, index) => (
+                    <div className="response-item" key={index}>
+                      <p>{index + 1}</p>
+                      <p>{item.peso}</p>
+                      <p>{item.valor}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="total">
+                  <div className="total__">
+                    <p>Ganho total: {calcularGanhoTotal()}</p>
+                    <p>Peso total: {calcularPesoTotal()}</p>
+                  </div>
                 </div>
               </div>
             </div>
