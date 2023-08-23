@@ -97,7 +97,10 @@ function App() {
     <>
       <div className="container">
         <h1 className="title">Metaheuristica GRASP</h1>
-        <p>O problema da mochila binária resolvido com um algoritmo GRASP</p>
+        <p>
+          O <b>Problema da Mochila Binária</b> resolvido com um algoritmo
+          <b> GRASP</b>
+        </p>
         <p>Informe os dados da mochila e as informações dos itens:</p>
         <div className="pre-form">
           <form action="POST" onSubmit={submitEventHandler} className="form">
@@ -153,7 +156,7 @@ function App() {
                     removeItem(index);
                   }}
                 >
-                  X
+                  <i class="fas fa-times"></i>
                 </button>
               </div>
             ))}
